@@ -63,6 +63,37 @@ function New-ServiceNowTableEntry{
 .COMMENT
     Untested
 #>
+
+function Update-ServiceNowTableEntry{
+    Param
+    (
+        # Name of the table we're updating (e.g. incidents)
+        [parameter(mandatory=$true)]
+        [string]$Table,
+
+        # sys_id of the entry we're updating
+        [parameter(mandatory=$true)]
+        [string]$SysId,
+        
+        # Hashtable of values to use as the record's properties
+        [parameter(mandatory=$false)]
+    )
+
+    if(! (Test-ServiceNowAuthIsSet)){
+        Write-Error "You must run Set-ServiceNowAuth prior to executing this cmdlet in order to provide credentials"
+    }
+
+    $Body = $Values | ConvertTo-Json;
+
+    # Fire and return
+    $Uri = $global:ServiceNowRESTURL + "/table/$Table/$SysID"
+    return (Invoke-RestMethod -Uri $uri -Method Put -Credential $global:ServiceNowCredentials -Body $Body -ContentType "application/json").result
+}
+
+<#
+.COMMENT
+    Untested
+#>
 function Remove-ServiceNowTableEntry{
     [CmdletBinding(ConfirmImpact='High')]
     Param(
